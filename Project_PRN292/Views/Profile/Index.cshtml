@@ -1,0 +1,261 @@
+﻿@using Model.EF
+@using Model.DAO
+@model Model.EF.User
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/LayoutAdmin.cshtml";
+    var user = Session["User"] as User;
+    //var RoleList = ViewData["ROLE_LIST"] as List<SelectListItem>;
+}
+
+
+<div class="content-wrapper">
+    <div class="col-md-6" style="margin-top: 5px;">
+        <!-- Update Form -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Profile</h3>
+            </div>
+
+            <!-- /.box-header -->
+            <!-- form start -->
+            @using (Html.BeginForm("Update", "Profile", FormMethod.Post,
+                        new
+                        {
+                            enctype = "multipart/form-data",
+                            id = "updateForm",
+                            @class = "form-horizontal"
+                        }))
+            {
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="FileAva" class="col-sm-2 control-label">Avatar</label>
+                        <div class="col-sm-10">
+                            @Html.HiddenFor(model => model.avatar, new { Value = user.avatar })
+                            <img src="@user.avatar" class="user-image pull-left" width="100" height="100" style="object-fit:cover;border-radius: 50%; margin-bottom: 3px;" id="imgSelected" />
+                            <input type="file" class="form-control" name="FileAva" id="FileAva" onchange="readURL(this)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Username</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" value="@user.username" disabled>
+                            @Html.HiddenFor(model => model.username, new { Value = user.username })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" value="********" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fullName" class="col-sm-2 control-label">Fullname</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.fullName, new { @class = "form-control", Value = user.fullName })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="col-sm-2 control-label">Address</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.address, new { @class = "form-control", Value = user.address })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">Email</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.email, new { @class = "form-control", Value = user.email })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-2 control-label">Phone</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.phone, new { @class = "form-control", Value = user.phone })
+                        </div>
+                    </div>
+                    @*<div class="form-group">
+                            <label for="role" class="col-sm-2 control-label">Role</label>
+                            <div class="col-sm-4">
+                                @Html.DropDownListFor(model => model.roleID,
+                                    new SelectList(RoleList, "Value", "Text", user.roleID)
+                                    , "--Select Role--", new { @class = "form-control" })
+                            </div>
+                        </div>*@
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-info pull-right">Update User</button>
+                    <div class="btn btn-info pull-left" onclick="showChangePWDDialog()">Change Your Password</div>
+                </div>
+                <!-- /.box-footer -->
+            }
+            <script type="text/javascript">
+                function readURL(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            let img = document.getElementById('imgSelected')
+                            img.src = e.target.result
+                        };
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                $(function () {
+                    $("#updateForm").validate({
+                        rules: {  // set rule for each field
+                            fullName: {
+                                required: true,
+                                rangelength: [6, 50]
+                            },
+                            address: {
+                                rangelength: [6, 200]
+                            },
+                            FileAva: {
+                                extension: "png|jpg|jpeg|gif"
+                            },
+                            email: {
+                                email: true
+                            },
+                            phone: {
+                                phone: true
+                            },
+                        }, //end rule
+                        messages: {  // customize message báo lỗi
+                            fullName: {
+                                required: "Please enter your fullname",
+                                rangelength: "Please enter your full name with length of 6 to 50"
+                            },
+                            address: {
+                                rangelength: "Please enter your address with length of 6 to 200"
+                            },
+                            FileAva: {
+                                extension: "Please choose file with extension is (png,jpg,jpeg or gif)"
+                            },
+                            email: {
+                                email: "Please enter a valid email address"
+                            },
+                            phone: {
+                                phone: "Please enter a valid phone number"
+                            }
+                        }, // end messages
+                    }); // end validate
+                }); // end function
+            </script>
+        </div>
+    </div>
+    <div class="col-md-6" style="position: fixed; top: 40%; left: 55%; transform: translate(-50%,-50%); display: none; " id="ChangePWDDialog">
+        <!-- Change Password Form -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Change Password Form</h3>
+                <div style="float: right;">
+                    <a><i class="fa fa-fw fa-close" style="font-size: 25px;" onclick="closeChangePWDDialog()"></i></a>
+                </div>
+            </div>
+
+            @using (Html.BeginForm("UpdatePassword", "Profile", FormMethod.Post,
+                         new
+                         {
+                             id = "ChangePWDForm",
+                             @class = "form-horizontal",
+                             onsubmit = "return mySubmitFunction(event)"
+                         }))
+            {
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="inputPassword3" class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="oldPWD" name="oldPWD" placeholder="Your Old Password">
+                        </div>
+                        <h5 class="col-sm-10 pull-right" id="PWD_ERROR" for="oldPWD" style="color:red; font-weight:800"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword3" class="col-sm-2 control-label">New Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="newPWD" name="newPWD" placeholder="New Password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword3" class="col-sm-2 control-label">Confirm PWD</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="confirmPWD" name="confirmPWD" placeholder="Confirm New Password">
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <input type="hidden" class="form-control" id="username" name="username" value="@user.username">
+                    <button type="submit" class="btn btn-info pull-right">Change The Password</button>
+                </div>
+                <!-- /.box-footer -->
+            }
+        </div>
+    </div>
+    <!-- /.content-wrapper -->
+
+    <script type="text/javascript">
+        var flag = false;
+                function mySubmitFunction()
+                {
+                    var s = $("#oldPWD").val();
+                    if (s.length === 0) {
+                         $("#PWD_ERROR").html('Please enter a this field');
+                    } else {
+                        $.post("@Url.Action("CheckPassword","Profile")",
+                            {
+                                oldPWD: s
+                            },
+                            function (data) {
+                                if (data == 0) {
+                                    $("#PWD_ERROR").html('');
+                                    flag = true;
+                                } else {
+                                    $("#PWD_ERROR").html('This password does not match the current password');
+                                    flag = false;
+                                }
+                            });
+                    }
+                    return flag;
+                }
+        $(function () {
+            $("#ChangePWDForm").validate({
+                rules: {  // set rule for each field
+                    newPWD: {
+                        required: true,
+                        rangelength: [6, 50]
+                    },
+                    confirmPWD: {
+                        equalTo: "#newPWD"
+                    },
+                }, //end rule
+                messages: {  // customize message báo lỗi
+                    newPWD: {
+                        required: "Please enter a this field",
+                        rangelength: "Please enter password with length of 6 to 50"
+                    },
+                    confirmPWD: {
+                        equalTo: "Confirmed Password is not matched with new password"
+                    }
+                }, // end messages
+            }); // end validate
+        }); // end function
+        function showChangePWDDialog() {
+            let changePWDDialog = document.getElementById("ChangePWDDialog");
+            changePWDDialog.style.display = "block";
+        }
+
+        function closeChangePWDDialog() {
+            let changePWDDialog = document.getElementById("ChangePWDDialog");
+            changePWDDialog.style.display = "none";
+        }
+    </script>
+</div>
+
+
+
+
+

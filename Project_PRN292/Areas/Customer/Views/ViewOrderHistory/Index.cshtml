@@ -1,0 +1,99 @@
+﻿@using Model.EF
+@model Model.EF.Order
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/LayoutAdmin.cshtml";
+    var listMobile = ViewData["All"] as List<Order>;
+    int count = 0;
+    User user = (User)Session["USER"];
+}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Manage Customer
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+            <li><a href="#">Management</a></li>
+            <li class="active">Order</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Data Table With Full Order Of 
+                        @if (user != null)
+                        {
+                            @user.fullName
+                        }
+                        </h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="example1" class="table table-bordered table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Address Ship</th>
+                                    <th>Receiver</th>
+                                    <th>Phone</th>
+                                    <th>Order Date</th>
+                                    <th>View Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (listMobile != null && listMobile.Count > 0)
+                                {
+                                    foreach (Order order in listMobile)
+                                    {
+                                        count++;
+                                        <tr>
+                                            <td>@count</td>
+                                            <td>@order.addressShip</td>
+                                            <td>@order.receiver</td>
+                                            <td>@order.phone</td>
+                                            <td>@order.orderDate</td>
+                                            <td>
+                                                <form action="/Customer/ViewOrderHistory/ViewDetails" method="post">
+                                                    <input type="hidden" name="orderID" id="orderID" value="@order.orderID" />
+                                                    <button class="btn btn-block" style="background-color: #40739e; color: white;" value="View Details">
+                                                        View Details
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6">
+                                            <h1 style="font-size:50px">
+                                                You have no orders at the store yet
+                                            </h1>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+</div>
+
+

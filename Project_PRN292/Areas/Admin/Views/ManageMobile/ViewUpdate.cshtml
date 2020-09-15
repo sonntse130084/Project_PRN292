@@ -1,0 +1,198 @@
+﻿@using Model.EF
+@using Model.DAO
+@model Model.EF.Phone
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/LayoutAdmin.cshtml";
+    var phone = ViewData["UPDATE"] as Phone;
+    var listSup = ViewData["SUPPLIER_LIST"] as List<Supplier>;
+    var listPhoto = ViewData["PHOTO"] as List<PhotoPhone>;
+}
+
+
+<div class="content-wrapper">
+    <div class="col-md-6" style="margin-top: 5px;">
+        <!-- Update Form -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Update Customer Form</h3>
+            </div>
+
+            <!-- /.box-header -->
+            <!-- form start -->
+            @using (Html.BeginForm("Update", "ManageMobile", FormMethod.Post,
+                      new
+                      {
+                          enctype = "multipart/form-data",
+                          id = "updateForm",
+                          @class = "form-horizontal",
+                      }))
+            {
+                <div class="box-body">
+
+                    <div class="form-group">
+                        <label for="phoneID1" class="col-sm-2 control-label">Mobile ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="phoneID1" name="phoneID1" class="form-control" value="@phone.phoneID" disabled />
+                        </div>
+                        @Html.HiddenFor(model => model.phoneID, new { Value = phone.phoneID });
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneName" class="col-sm-2 control-label">Mobile Name</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.phoneName, new { @class = "form-control", Value = phone.phoneName })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="col-sm-2 control-label">Description</label>
+                        <div class="col-sm-10">
+                            <textarea rows="4" cols="50" id="description" name="description" class="form-control" style="resize:none;">@phone.description</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity" class="col-sm-2 control-label">Quantity</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.quantity, new { @class = "form-control", type = "number", Value = phone.quantity })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="price" class="col-sm-2 control-label">Price</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.price, new { @class = "form-control", Value = phone.price })
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount" class="col-sm-2 control-label">Discount</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.discount, new { @class = "form-control", Value = phone.discount })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone1" class="col-sm-2 control-label">Supplier</label>
+                        <div class="col-sm-10">
+                            <select name="supID" id="supID" class="form-control">
+                                <option value="">--Select Supllier--</option>
+                                @foreach (Supplier sup in listSup)
+                                {
+                                    if (sup.supID.Equals(phone.supID))
+                                    {
+                                        <option value="@sup.supID" selected>@sup.supName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@sup.supID">@sup.supName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="FileAva" class="col-sm-2 control-label">Photo</label>
+                        <div class="col-sm-10">
+                            <input type="file" class="form-control" name="FilePhoto" id="FilePhoto" multiple>
+                            <div id="gallery">
+                                @foreach (PhotoPhone photo in listPhoto)
+                                {
+                                    <img src="@photo.urlPhoto" width="100" height="100" style="margin-top:5px;object-fit: cover;" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-info pull-right">Update Mobile</button>
+                </div>
+                <!-- /.box-footer -->
+            }
+            <script type="text/javascript">
+                $(function () {
+                    // Multiple images preview in browser
+                    var imagesPreview = function (input, placeToInsertImagePreview) {
+
+                        if (input.files) {
+                            var filesAmount = input.files.length;
+
+                            for (i = 0; i < filesAmount; i++) {
+                                var reader = new FileReader();
+
+                                reader.onload = function (event) {
+                                    $($.parseHTML('<img width="100px" height="100px" style="margin-top:5px;object-fit: fit;"/>')).attr('src', event.target.result).appendTo(placeToInsertImagePreview);
+                                }
+
+                                reader.readAsDataURL(input.files[i]);
+                            }
+                        }
+                    };
+                    $('#FilePhoto').on('change', function () {
+                        $("#gallery").html('');
+                        imagesPreview(this, '#gallery');
+                    });
+                });
+
+                $(function () {
+                    $("#updateForm").validate({
+                        rules: {  // set rule for each field
+                            phoneName: {
+                                required: true,
+                                rangelength: [6, 50]
+                            },
+                            description: {
+                                rangelength: [2, 100]
+                            },
+                            supID: {
+                                required: true,
+                            },
+                            quantity: {
+                                required: true,
+                                min: 1
+                            },
+                            price: {
+                                required: true,
+                                min: 0.000001
+                            },
+                            discount: {
+                                range: [0, 1]
+                            },
+                            FilePhoto: {
+                                extension: "png|jpg|jpeg|gif"
+                            },
+                        }, //end rule
+                        messages: {  // customize message báo lỗi
+                            phoneName: {
+                                required: "Please enter a this field",
+                                rangelength: "Please enter your password with length of 6 to 50"
+                            },
+                            description: {
+                                rangelength: "Please enter your password with length of 2 to 100"
+                            },
+                            supID: {
+                                required: "Please select supplier",
+                            },
+                            quantity: {
+                                required: "Please enter a this field",
+                                min: "Please enter a value greater than or equal to 1."
+                            },
+                            price: {
+                                required: "Please enter a this field",
+                                min: "Please enter a value greater than 0."
+                            },
+                            discount: {
+                                range: "Please enter a value between 0 and 1."
+                            },
+                            FilePhoto: {
+                                extension: "png|jpg|jpeg|gif"
+                            }
+                        }, // end messages
+                    }); // end validate
+                }); // end function
+            </script>
+        </div>
+    </div>
+</div>
+
+
+
+
+

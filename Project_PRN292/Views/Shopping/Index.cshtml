@@ -1,0 +1,95 @@
+﻿@using Model.EF
+@{
+    ViewBag.Title = "Index";
+    List<Phone> listPhone = ViewData["PHONE"] as List<Phone>;
+    Supplier sup = null;
+    if (ViewData["SUPPLIER"] != null)
+    {
+        sup = ViewData["SUPPLIER"] as Supplier;
+    }
+    Layout = "~/Areas/Customer/Views/Shared/LayoutCustomer.cshtml";
+    User user =(User) Session["USER"];
+}
+
+<div class="product-big-title-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                @if (sup != null)
+                {
+                    <img src="@sup.photo" class="center-block" />
+                }
+                else
+                {
+                    <div class="product-bit-title text-center">
+                        <h2>Shop</h2>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="single-product-area">
+    <div class="zigzag-bottom"></div>
+    <div class="container">
+        <div class="row">
+            @foreach (Phone phone in listPhone)
+            {
+                <div class="col-md-4">
+                    <div class="single-shop-product" style="border:1px solid">
+                        <div class="product-upper center-block" style="width:90%; height:250px;">
+                            <img class="center-block" src="@phone.PhotoPhones.First(x => x.phoneID == phone.phoneID).urlPhoto" style="width:80%; height:80%; object-fit:contain">
+                        </div>
+                        <div class="center-block" style="width:90%;">
+                            <h2 class="text-center"><a href="/Details/Index?phoneID=@phone.phoneID">@phone.phoneName</a></h2>
+                            <div class="product-carousel-price">
+                                @if (phone.discount > 0)
+                                {
+                                    double sale = (1 - phone.discount) * phone.price;
+                                    <p class="text-center">
+                                        <ins>$@sale</ins><del>$@phone.price</del>
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p class="text-center">
+                                        <ins>$@phone.price</ins>
+                                    </p>
+                                }
+                            </div>
+                            <div class="product-option-shop">
+                                <p class="text-center" style="margin-bottom:0;">
+                                    @if (user == null || user.roleID.Equals("R2"))
+                                    {
+                                        <a class="add_to_cart_button" data-quantity="1" data-product_sku="" data-product_id="70" style="cursor:pointer" onclick="AddCart('@phone.phoneID')">
+                                            Add to cart
+                                        </a>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+    <script type="text/javascript">
+    function AddCart(phoneID) {
+        $.post("@Url.Action("AddToCart","Cart")",
+            {
+                phoneID: phoneID
+            },
+            function (data) {
+                if ($.isNumeric(data[0])) {
+                    $('#CountCart').html(data[0])
+                    $('#TotalCart').html(data[1])
+                } else {
+                    window.location = "/Login/Index";
+                }
+            });
+    }
+    </script>
+</div>

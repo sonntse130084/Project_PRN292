@@ -1,0 +1,194 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Layout/_Layout.cshtml";
+}
+
+    <div class="col-md-6" style="position: fixed; top:50%; left:50%; transform:translate(-50%,-50%)">
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Register Form</h3>
+            </div>
+
+            @using (Html.BeginForm("Insert", "Register", FormMethod.Post,
+                       new
+                       {
+                           enctype = "multipart/form-data",
+                           id = "insertForm",
+                           @class = "form-horizontal",
+                           onsubmit = "return mySubmitFunction(event)"
+                       }))
+            {
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="FileAva" class="col-sm-2 control-label">Avatar</label>
+                        <div class="col-sm-10">
+                            <img src="~/Image/defaultAva.png" class="user-image pull-left" width="100px" height="100px" style="border-radius: 50%;margin-bottom: 3px;" id="imgSelected" />
+                            <input type="file" class="form-control" name="FileAva" id="FileAva" onchange="readURL(this)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="username" class="col-sm-2 control-label">Username</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="username1" name="username1" class="form-control" onkeyup="UserCheck()" />
+                        </div>
+                        <div class="col-sm-4 pull-right">
+                            <p id="CheckDup" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password1" class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" id="password1" name="password1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPWD1" class="col-sm-2 control-label">Confirm Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" id="confirmPWD1" name="confirmPWD1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fullname1" class="col-sm-2 control-label">Fullname</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="fullname1" name="fullname1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address1" class="col-sm-2 control-label">Address</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="address1" name="address1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email1" class="col-sm-2 control-label">Email</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="email1" name="email1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone1" class="col-sm-2 control-label">Phone</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="phone1" name="phone1" class="form-control" />
+                        </div>
+                    </div>
+                    @*<div class="form-group">
+                    <label for="role" class="col-sm-2 control-label">Role</label>
+                    <div class="col-sm-4">
+                        @Html.DropDownListFor(model => model.roleID,
+                            new SelectList(RoleList, "Value", "Text", user.roleID)
+                            , "--Select Role--", new { @class = "form-control" })
+                    </div>
+                </div>*@
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-info pull-right">Update User</button>
+                </div>
+                <!-- /.box-footer -->
+            }
+            <script type="text/javascript">
+                var flag = false;
+                function UserCheck() {
+                    var s = $("#username1").val();
+                    if (s.length < 6) {
+                        $("#CheckDup").html('<font color="Red">Username must be at least 6 characters</font>');
+                        $("#username1").css("border-color: red");
+                        flag = false;
+                    } else if (s.length > 20) {
+                        $("#CheckDup").html('<font color="Red">Username must be at most 20 characters</font>');
+                        $("#username1").css("border-color: red");
+                        flag = false;
+                    } else {
+                        $("#CheckDup").html("Checking...");
+                        $.post("@Url.Action("CheckDupUsername","Register")",
+                            {
+                                username: $("#username1").val()
+                            },
+                            function (data) {
+                                if (data == 0) {
+                                    $("#CheckDup").html('<font color="Green">Available! You can take it.</font>');
+                                    $("#username1").css("border-color: green");
+                                    flag = true;
+                                } else {
+                                    $("#CheckDup").html('<font color="Red">Username already exist. Try another!</font>');
+                                    $("#username1").css("border-color: red");
+                                    flag = false;
+                                }
+                            });
+                    }
+                }
+                function mySubmitFunction()
+                {
+                    return flag;
+                }
+                function readURL(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            let img = document.getElementById('imgSelected')
+                            img.src = e.target.result
+                        };
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                $(function () {
+                    $("#insertForm").validate({
+                        rules: {  // set rule for each field
+                            password1: {
+                                required: true,
+                                rangelength: [6, 20]
+                            },
+                            confirmPWD1: {
+                                equalTo: "#password1"
+                            },
+                            fullname1: {
+                                required: true,
+                                rangelength: [6, 50]
+                            },
+                            address1: {
+                                rangelength: [6, 200]
+                            },
+                            FileAva: {
+                                extension: "png|jpg|jpeg|gif"
+                            },
+                            email1: {
+                                email: true
+                            },
+                            phone1: {
+                                phone: true
+                            },
+                        }, //end rule
+                        messages: {  // customize message báo lỗi
+                            password1: {
+                                required: "Please enter a this field",
+                                rangelength: "Please enter your password with length of 6 to 20"
+                            },
+                            confirmPWD1: {
+                                equalTo: "Confirmed Password is not matched with new password"
+                            },
+                            fullname1: {
+                                required: "Please enter your fullname",
+                                rangelength: "Please enter your full name with length of 6 to 50"
+                            },
+                            address1: {
+                                rangelength: "Please enter your address with length of 6 to 200"
+                            },
+                            FileAva: {
+                                extension: "Please choose file with extension is (png,jpg,jpeg or gif)"
+                            },
+                            email1: {
+                                email: "Please enter a valid email address"
+                            },
+                            phone1: {
+                                phone: "Please enter a valid phone number"
+                            }
+                        }, // end messages
+                    }); // end validate
+                }); // end function
+            </script>
+        </div>
+    </div>

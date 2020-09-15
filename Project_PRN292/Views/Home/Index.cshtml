@@ -1,0 +1,153 @@
+﻿@using Model.EF
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Customer/Views/Shared/LayoutCustomer.cshtml";
+    List<Phone> listPhone = ViewData["PHONE"] as List<Phone>;
+    List<Supplier> listSup = ViewData["SUPPLIER"] as List<Supplier>;
+    User user = (User)Session["USER"];
+}
+
+<div class="slider-area">
+    <!-- Slider -->
+    <div class="block-slider block-slider4">
+        <ul class="" id="bxslider-home4">
+            <li>
+                <img src="~/Image/slider1.png" alt="Slide" width="50" height="50">
+                <div class="caption-group">
+                    <h2 class="caption title">
+                        <span style="color:white">iPhone <strong>XS MAX</strong></span>
+                    </h2>
+                    <a class="caption button-radius" href="/Shopping/Index"><span class="icon"></span>Shop now</a>
+                </div>
+            </li>
+            <li>
+                <img src="~/Image/h4-slide2.png" alt="Slide">
+                <div class="caption-group">
+                    <h2 class="caption title">
+                        by one, get one <span class="primary">50% <strong>off</strong></span>
+                    </h2>
+                    <h4 class="caption subtitle">school supplies & backpacks.*</h4>
+                    <a class="caption button-radius" href="/Shopping/Index"><span class="icon"></span>Shop now</a>
+                </div>
+            </li>
+            <li>
+                <img src="/Image/h4-slide3.png" alt="Slide">
+                <div class="caption-group">
+                    <h2 class="caption title">
+                        Samsung <span class="primary">Store <strong>Galaxy Note 10 Plus</strong></span>
+                    </h2>
+                    <h4 class="caption subtitle">Select Item</h4>
+                    <a class="caption button-radius" href="/Shopping/Index"><span class="icon"></span>Shop now</a>
+                </div>
+            </li>
+            <li>
+                <img src="/Image/h4-slide4.png" alt="Slide">
+                <div class="caption-group">
+                    <h2 class="caption title">
+                        Apple <span class="primary">Store <strong>Air pod</strong></span>
+                    </h2>
+                    <h4 class="caption subtitle">& Phone</h4>
+                    <a class="caption button-radius" href="/Shopping/Index"><span class="icon"></span>Shop now</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <!-- ./Slider -->
+</div>
+<!-- End slider area -->
+<!-- End promo area -->
+
+<div class="maincontent-area">
+    <div class="zigzag-bottom"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="latest-product">
+                    <h2 class="section-title">Lastest Products</h2>
+                    <div class="product-carousel">
+                        @for (int i = 0; i < 10; i++)
+                        {
+                            Phone phone = listPhone[i];
+                            <div class="single-product">
+                                <div class="product-f-image" style="width:200px; height:250px;">
+                                    <img src="@phone.PhotoPhones.First(x => x.phoneID == phone.phoneID).urlPhoto" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%)">
+                                    <div class="product-hover">
+                                        @if (user == null || user.roleID.Equals("R2"))
+                                        {
+                                            <a onclick="AddCart('@phone.phoneID')" style="cursor:pointer" class="add-to-cart-link"><i class="fa fa-shopping-cart"></i> Add to cart</a>
+                                        }
+                                        <a href="/Details/Index?phoneID=@phone.phoneID" class="view-details-link"><i class="fa fa-link"></i> See details</a>
+                                    </div>
+                                </div>
+
+                                <h2 class="text-center"><a href="/Details/Index?phoneID=@phone.phoneID">@phone.phoneName</a></h2>
+                                <div class="product-carousel-price">
+                                    @if (phone.discount > 0)
+                                    {
+                                        double sale = (1 - phone.discount) * phone.price;
+                                        <p class="text-center">
+                                            <ins>$@sale</ins><del>$@phone.price</del>
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-center">
+                                            <ins>$@phone.price</ins>
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End main content area -->
+<div class="glyphicon-picture" style="position:relative">
+    <img class="center-block" src="~/Image/BestDeal.png" style="height:400px;margin-bottom:100px;" />
+    <div class="caption-group" style="position:absolute; top:50%; left:72%; transform:translate(-50%,-50%);">
+        <h2 class="caption title">
+            <span class="primary">iPhone <strong>11 PRO MAX</strong></span>
+        </h2>
+        <a class="caption button-radius" href="/Shopping/Index"><span class="icon"></span>Shop now</a>
+    </div>
+</div>
+<div class="brands-area" style="margin-bottom: 50px;">
+    <div class="zigzag-bottom"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="brand-wrapper">
+                    <div class="brand-list">
+                        @foreach (Supplier sup in listSup)
+                        {
+                            <a href="/Shopping/ViewBySupplier?supID=@sup.supID">
+                                <img src="@sup.photo" alt="" />
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function AddCart(phoneID) {
+        $.post("@Url.Action("AddToCart","Cart")",
+            {
+                phoneID: phoneID
+            },
+            function (data) {
+                if ($.isNumeric(data[0])) {
+                    $('#CountCart').html(data[0])
+                    $('#TotalCart').html(data[1])
+                } else {
+                    window.location = "/Login/Index";
+                }
+           });
+    }
+</script>
+<!-- End brands area -->

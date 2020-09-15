@@ -1,0 +1,178 @@
+﻿@using Project_PRN292.Cart
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Customer/Views/Shared/LayoutCustomer.cshtml";
+    CartObj cart = (CartObj)Session["CART"];
+    double subtotal = 0;
+    double sale = 0;
+    double total = 0;
+    if (cart != null && cart.cart != null)
+    {
+        subtotal = cart.total;
+        sale = cart.total * 0.1;
+        total = cart.total * 1.1;
+    }
+    int count = 0;
+}
+
+<div class="product-big-title-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-bit-title text-center">
+                    <h2>Shopping Cart</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Page title area -->
+
+
+<div class="single-product-area">
+    <div class="zigzag-bottom"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-content-right">
+                    <div class="woocommerce">
+                            <table cellspacing="0" class="shop_table cart">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Image</th>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Discount</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (cart != null && cart.cart != null)
+                                    {
+                                        <form action="/Customer/Checkout/Index" method="post">
+                                            @foreach (var x in cart.cart)
+                                            {
+                                                count++;
+                                                double amount = x.Key.price * (1-x.Key.discount) * x.Value;
+                                                string nameQuantity = "quantity" + count;
+                                                string nameTotal = "total" + count;
+                                            <tr class="cart_item">
+                                                <td>
+                                                    @count
+                                                </td>
+
+                                                <td>
+                                                    <img src="@x.Key.PhotoPhones.First(m => m.phoneID == x.Key.phoneID).urlPhoto" class="user-image" width="80" height="80" style="object-fit: cover;" />
+                                                </td>
+
+                                                <td>
+                                                    <a href="/Details/Index?phoneID=@x.Key.phoneID">@x.Key.phoneName</a>
+                                                </td>
+                                                <td>
+                                                    @x.Key.price
+                                                </td>
+                                                <td>
+                                                    @x.Key.discount
+                                                </td>
+                                                <td class="product-quantity">
+                                                    <div class="quantity buttons_added">
+                                                        <input type="number" size="4" class="input-text qty text" id="@nameQuantity" name="@nameQuantity" value="@x.Value"
+                                                               min="1" step="1" max="@x.Key.quantity" onchange="UpdateCart('@x.Key.phoneID',@count,@x.Key.quantity)" required />
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span id="@nameTotal" name="@nameTotal">@amount</span>
+                                                </td>
+
+                                                <td>
+                                                    <a href="/Customer/Cart/RemoveCart?phoneID=@x.Key.phoneID">
+                                                        <i class="fa fa-fw fa-trash-o" style="font-size: 25px; color: gray;"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            }
+                                            <tr>
+                                                <td colspan="7">
+                                                    <button class="add_to_cart_button pull-right" style="cursor: pointer;" href="/Customer/Checkout/Index">CHECKOUT</button>
+                                                    <a class="add_to_cart_button pull-right" style="cursor: pointer; margin-right:10px;" href="/Shopping/Index">Choose another mobile</a>
+                                                </td>
+                                            </tr>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="7">
+                                                <h1 class="text-info">
+                                                    No products in the cart
+                                                </h1>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="7">
+                                                <a class="add_to_cart_button pull-right" style="cursor: pointer; margin-right:10px;" href="/Shopping/Index">Choose another mobile</a>
+                                            </td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+
+                        <div class="cart-collaterals">
+                            <div class="cart_totals ">
+                                <h2>Cart Totals</h2>
+
+                                <table cellspacing="0">
+                                    <tbody>
+                                        <tr class="cart-subtotal">
+                                            <th>Cart Subtotal</th>
+                                            <td><span name="subtotal" id="subtotal">@subtotal </span>$</td>
+                                        </tr>
+
+                                        <tr class="shipping">
+                                            <th>Tax (10%)</th>
+                                            <td><span name="tax" id="tax">@sale</span> $</td>
+                                        </tr>
+
+                                        <tr class="order-total">
+                                            <th>Order Total</th>
+                                            <td><strong><span name="total" id="total">@total </span>$</strong> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var flag = true;
+    function UpdateCart(phoneID, count, quantity) {
+        var x = "#quantity" + count;
+        var y = "#total" + count;
+        var value = $(x).val();
+        if (value > 0 && value <= quantity) {
+            $.post("@Url.Action("UpdateCart","Cart")",
+                {
+                    phoneID: phoneID,
+                    value: value
+                },
+                function (data) {
+                    $('#CountCart').html(data[0])
+                    $('#TotalCart').html(data[1])
+                    $(y).html(data[2])
+                    $('#subtotal').html(data[1])
+                    $('#tax').html(data[1] * 0.1)
+                    $('#total').html(data[1] * 1 + data[1] * 0.1)
+                });
+        } else {
+            flag = false;
+        }
+    }
+</script>

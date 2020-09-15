@@ -1,0 +1,95 @@
+﻿@using Model.EF
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Customer/Views/Shared/LayoutCustomer.cshtml";
+    User user = Session["USER"] as User;
+
+}
+
+<div class="product-big-title-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-bit-title text-center">
+                    <h2>CHECKOUT</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin: 50px 100px; ">
+
+    <div class="col-md-8" style="margin-top: 5px;">
+        <!-- Update Form -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Personal Infomation</h3>
+            </div>
+
+            <!-- /.box-header -->
+            <!-- form start -->
+            <form class="form-horizontal" action="/Customer/Checkout/Checkout" method="post" id="CheckoutForm">
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="receiver" class="col-sm-2 control-label">Receiver Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="receiver" name="receiver" placeholder="Receiver Name.." value="@user.fullName">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="col-sm-2 control-label">Address</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="address" name="address" placeholder="Address.." value="@user.address">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-2 control-label">Phone Contact</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone Contact.." value="@user.phone">
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-info pull-right">CHECKOUT</button>
+                </div>
+                <!-- /.box-footer -->
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#CheckoutForm").validate({
+            rules: {  // set rule for each field
+                receiver: {
+                    required: true,
+                    rangelength: [6, 50]
+                },
+                address: {
+                    required: true,
+                    rangelength: [6, 200]
+                },
+                phone: {
+                    required: true,
+                    phone: true
+                },
+            }, //end rule
+            messages: {  // customize message báo lỗi
+                 receiver: {
+                    required: "Please enter your receiver name",
+                    rangelength: "Please enter the name with length of 6 to 50"
+                },
+                address: {
+                    required:  "Please enter your address",
+                    rangelength: "Please enter your address with length of 6 to 50"
+                },
+                phone: {
+                    required: "Please enter your phone",
+                    phone:  "Please enter a valid phone number"
+                }
+            }, // end messages
+        }); // end validate
+    }); // end function
+</script>

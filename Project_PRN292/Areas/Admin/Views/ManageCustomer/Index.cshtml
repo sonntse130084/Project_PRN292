@@ -1,0 +1,299 @@
+﻿@using Model.EF
+@model Model.EF.User
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/LayoutAdmin.cshtml";
+    var listUser = ViewData["All"] as List<User>;
+    int count = 0;
+}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Manage Customer
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+            <li><a href="#">Management</a></li>
+            <li class="active">Customer</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Data Table With Full Customer</h3>
+                        <div style="float: right;margin-top: 5px;">
+                            <button style="background-color: #40739e; color: white; border: none;" onclick="showInsertDialog()">Add A New Customer</button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="example1" class="table table-bordered table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Image</th>
+                                    <th>Username</th>
+                                    <th>Fullname</th>
+                                    <th>Address</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                    <th>Delete</th>
+                                    <th>Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (User user in listUser)
+                                {
+                                    count++;
+                                    <tr>
+                                        <td>@count</td>
+                                        <td>
+                                            <img src="@user.avatar" class="user-image" width="100" height="100" style="object-fit: cover; border-radius: 50%;" />
+                                        </td>
+                                        <td>@user.username</td>
+                                        <td>@user.fullName</td>
+                                        <td>@user.address</td>
+                                        <td>@user.email</td>
+                                        <td>@user.phone</td>
+                                        <td>@user.Role.roleName</td>
+                                        <td>
+                                            <a href="/Admin/ManageCustomer/Delete?username=@user.username">
+                                                <i class="fa fa-fw fa-trash-o" style="font-size: 25px; color: gray;"></i>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <form action="/Admin/ManageCustomer/ViewUpdate" method="post">
+                                                <input type="hidden" name="username" id="username" value="@user.username" />
+                                                <button class="btn btn-block" style="background-color: #40739e; color: white;" value="Update">
+                                                    Update
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+    <!-- /.content -->
+    <div class="col-md-6" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); display: none;z-index:10000 " id="InsertFormDLG">
+        <!-- Horizontal Form -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Insert Form</h3>
+                <div style="float: right;">
+                    <a><i class="fa fa-fw fa-close" style="font-size: 25px;" onclick="closeInsertDialog()"></i></a>
+                </div>
+            </div>
+
+            @using (Html.BeginForm("Insert", "ManageCustomer", FormMethod.Post,
+                       new
+                       {
+                           enctype = "multipart/form-data",
+                           id = "insertForm",
+                           @class = "form-horizontal",
+                           onsubmit = "return mySubmitFunction(event)"
+                       }))
+            {
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="FileAva" class="col-sm-2 control-label">Avatar</label>
+                        <div class="col-sm-10">
+                            <img src="~/Image/defaultAva.png" class="user-image pull-left" width="100" height="100" style="object-fit: cover;border-radius: 50%;margin-bottom: 3px;" id="imgSelected" />
+                            <input type="file" class="form-control" name="FileAva" id="FileAva" onchange="readURL(this)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="username" class="col-sm-2 control-label">Username</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="username1" name="username1" class="form-control" onkeyup="UserCheck()" />
+                        </div>
+                        <div class="col-sm-4 pull-right">
+                            <p id="CheckDup" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password1" class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" id="password1" name="password1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPWD1" class="col-sm-2 control-label">Confirm Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" id="confirmPWD1" name="confirmPWD1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fullname1" class="col-sm-2 control-label">Fullname</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="fullname1" name="fullname1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address1" class="col-sm-2 control-label">Address</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="address1" name="address1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email1" class="col-sm-2 control-label">Email</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="email1" name="email1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone1" class="col-sm-2 control-label">Phone</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="phone1" name="phone1" class="form-control" />
+                        </div>
+                    </div>
+                    @*<div class="form-group">
+                            <label for="role" class="col-sm-2 control-label">Role</label>
+                            <div class="col-sm-4">
+                                @Html.DropDownListFor(model => model.roleID,
+                                    new SelectList(RoleList, "Value", "Text", user.roleID)
+                                    , "--Select Role--", new { @class = "form-control" })
+                            </div>
+                        </div>*@
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-info pull-right">Insert A New User</button>
+                </div>
+                <!-- /.box-footer -->
+            }
+            <script type="text/javascript">
+                var flag = false;
+                function UserCheck() {
+                    var s = $("#username1").val();
+                    if (s.length < 6) {
+                        $("#CheckDup").html('<font color="Red">Username must be at least 6 characters</font>');
+                        $("#username1").css("border-color: red");
+                        flag = false;
+                    } else if (s.length > 20) {
+                        $("#CheckDup").html('<font color="Red">Username must be at most 20 characters</font>');
+                        $("#username1").css("border-color: red");
+                        flag = false;
+                    } else {
+                        $("#CheckDup").html("Checking...");
+                        $.post("@Url.Action("CheckDupUsername","ManageCustomer")",
+                            {
+                                username: $("#username1").val()
+                            },
+                            function (data) {
+                                if (data == 0) {
+                                    $("#CheckDup").html('<font color="Green">Available! You can take it.</font>');
+                                    $("#username1").css("border-color: green");
+                                    flag = true;
+                                } else {
+                                    $("#CheckDup").html('<font color="Red">Username already exist. Try another!</font>');
+                                    $("#username1").css("border-color: red");
+                                    flag = false;
+                                }
+                            });
+                    }
+                }
+                function mySubmitFunction()
+                {
+                    return flag;
+                }
+                function readURL(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            let img = document.getElementById('imgSelected')
+                            img.src = e.target.result
+                        };
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                $(function () {
+                    $("#insertForm").validate({
+                        rules: {  // set rule for each field
+                            password1: {
+                                required: true,
+                                rangelength: [6, 20]
+                            },
+                            confirmPWD1: {
+                                equalTo: "#password1"
+                            },
+                            fullname1: {
+                                required: true,
+                                rangelength: [6, 50]
+                            },
+                            address1: {
+                                rangelength: [6, 200]
+                            },
+                            FileAva: {
+                                extension: "png|jpg|jpeg|gif"
+                            },
+                            email1: {
+                                email: true
+                            },
+                            phone1: {
+                                phone: true
+                            },
+                        }, //end rule
+                        messages: {  // customize message báo lỗi
+                            password1: {
+                                required: "Please enter a this field",
+                                rangelength: "Please enter your password with length of 6 to 20"
+                            },
+                            confirmPWD1: {
+                                equalTo: "Confirmed Password is not matched with new password"
+                            },
+                            fullname1: {
+                                required: "Please enter your fullname",
+                                rangelength: "Please enter your full name with length of 6 to 50"
+                            },
+                            address1: {
+                                rangelength: "Please enter your address with length of 6 to 200"
+                            },
+                            FileAva: {
+                                extension: "Please choose file with extension is (png,jpg,jpeg or gif)"
+                            },
+                            email1: {
+                                email: "Please enter a valid email address"
+                            },
+                            phone1: {
+                                phone: "Please enter a valid phone number"
+                            }
+                        }, // end messages
+                    }); // end validate
+                }); // end function
+            </script>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function showInsertDialog() {
+        let insertDialog = document.getElementById("InsertFormDLG");
+        insertDialog.style.display = "block";
+    }
+
+    function closeInsertDialog() {
+        let insertDialog = document.getElementById("InsertFormDLG");
+        insertDialog.style.display = "none";
+    }
+</script>
+

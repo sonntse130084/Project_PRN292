@@ -1,0 +1,141 @@
+﻿@using Model.EF
+@using Project_PRN292.Cart
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Customer/Views/Shared/LayoutCustomer.cshtml";
+    Phone phone = ViewData["PHONE"] as Phone;
+    CartObj cart = (CartObj)Session["CART"];
+    int quantity = 1;
+    if (cart != null && cart.cart != null)
+    {
+        if (cart.cart.ContainsKey(phone))
+        {
+            quantity = cart.cart[phone];
+        }
+    }
+    int countImage = 0;
+    User user = (User)Session["USER"];
+
+}
+
+<div class="product-big-title-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-bit-title text-center">
+                    <h2>Shop</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="single-product-area">
+    <div class="zigzag-bottom"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-content-right">
+                    <div class="product-breadcroumb">
+                        <a href="/Home/Index">Home</a>
+                        <a href="/Shopping/Index">Shop Page</a>
+                        <a>@phone.phoneName</a>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="product-images">
+                                <div class="product-main-img">
+                                    <img src="@phone.PhotoPhones.First(x => x.phoneID == phone.phoneID).urlPhoto" id="mainImage" style="width: 80%;">
+                                </div>
+                                <div class="product-gallery">
+                                    @foreach (var img in phone.PhotoPhones.ToList())
+                                    {
+                                        countImage++;
+                                        string idImage = "image" + countImage;
+                                        <img src="@img.urlPhoto" onclick="ChangePhoto(@countImage)" id="@idImage" style="width: 20%;">
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="product-inner">
+                                <h2 class="product-name">@phone.phoneName</h2>
+                                <div class="product-inner-price" style="font-size:25px">
+                                    @if (phone.discount > 0)
+                                    {
+                                        double sale = (1 - phone.discount) * phone.price;
+                                        <ins>$@sale</ins><del>$@phone.price</del>
+                                    }
+                                    else
+                                    {
+                                        <ins>$@phone.price</ins>
+                                    }
+                                </div>
+                                @if (user == null || user.roleID.Equals("R2"))
+                                {
+                                    <div class="quantity" style="margin-top: 5px;">
+                                        <form onsubmit="return false">
+                                            @{
+                                                int currentquantity = @phone.quantity - quantity;
+                                            }
+                                            <input type="hidden" name="phoneID" id="phoneID" value="@phone.phoneID" />
+                                            <input type="number" size="4" class="input-text qty text" title="Qty" value="1"
+                                                   name="quantity" id="quantity" min="1" max="@currentquantity" step="1" required>
+
+                                            <button class="add_to_cart_button" onclick="AddToCart()" style="cursor:pointer; margin-top: 5px;">
+                                                Add to cart
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                <div role="tabpanel" style="margin-top:10px;">
+                                    <ul class="product-tab" role="tablist">
+                                        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Description</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane fade in active" id="home">
+                                            <h2>Product Description</h2>
+                                            @phone.description
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function ChangePhoto(count) {
+        var idImage = "#image" + count;
+        var img = $(idImage).attr('src');
+        $('#mainImage').attr('src', img);
+    }
+    function AddToCart() {
+        var value = $('#quantity').val();
+        if (value > 0) {
+            $.post("@Url.Action("AddToCartWithValue","Cart")",
+                {
+                    phoneID: '@phone.phoneID',
+                    value: value
+                },
+                function (data) {
+                    if ($.isNumeric(data[0])) {
+                        $('#CountCart').html(data[0])
+                        $('#TotalCart').html(data[1])
+                        $('#quantity').attr('max', data[2]);
+                    } else {
+                        window.location = "/Login/Index";
+                    }
+                }
+            );
+        }
+    }
+</script>
+

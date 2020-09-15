@@ -1,0 +1,43 @@
+﻿@model Model.EF.User
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Layout/_Layout.cshtml";
+}
+
+<div class="col-md-4" style="position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%);">
+    <div class="box box-info">
+       
+        <div class="box-header with-border text-center" style="height:70px;">
+            <h1 class="box-title" style="font-size:35px;font-family:'Times New Roman', Times, serif">Login</h1>
+            <div style="position:absolute; left:10px; bottom:5px;">
+                <a href="/Home/Index"><img src="~/Image/logo_transparent.png" height="65" /></a>
+            </div>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        @using (Html.BeginForm("Login", "Login", FormMethod.Post, new { @class = "form-horizontal" }))
+        {
+            <div class="box-body">
+                <div class="form-group">
+                    <label for="password" class="col-sm-2 control-label">Username</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(model => model.username, new { @class = "form-control", placeholder = "Username..", autofocus = "autofocus" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="col-sm-2 control-label">Password</label>
+                    <div class="col-sm-10">
+                        @Html.PasswordFor(model => model.password, new { @class = "form-control", placeholder = "Password.." })
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <h4 class="text-danger">@ViewData["MsgErr"]</h4>
+                    <button class="btn btn-info center-block" style="width:100%">Login</button>
+                    <a href="/Register/Index" class="btn btn-info center-block" style="margin-top:5px; background-color:#77ca77">
+                        Register
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

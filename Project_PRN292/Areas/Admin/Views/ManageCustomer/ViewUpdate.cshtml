@@ -1,0 +1,153 @@
+﻿@using Model.EF
+@using Model.DAO
+@model Model.EF.User
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/LayoutAdmin.cshtml";
+    var user = ViewData["UPDATE"] as User;
+    //var RoleList = ViewData["ROLE_LIST"] as List<SelectListItem>;
+}
+
+
+<div class="content-wrapper">
+    <div class="col-md-6" style="margin-top: 5px;">
+        <!-- Update Form -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Update Customer Form</h3>
+            </div>
+
+            <!-- /.box-header -->
+            <!-- form start -->
+            @using (Html.BeginForm("Update", "ManageCustomer", FormMethod.Post,
+                        new
+                        {
+                            enctype = "multipart/form-data",
+                            id = "updateForm",
+                            @class = "form-horizontal"
+                        }))
+            {
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="FileAva" class="col-sm-2 control-label">Avatar</label>
+                        <div class="col-sm-10">
+                            @Html.HiddenFor(model => model.avatar, new { Value = user.avatar })
+                            <img src="@user.avatar" class="user-image pull-left" width="100" height="100" style="border-radius: 50%;margin-bottom: 3px;" id="imgSelected" />
+                            <input type="file" class="form-control" name="FileAva" id="FileAva" onchange="readURL(this)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Username</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" value="@user.username" disabled>
+                            @Html.HiddenFor(model => model.username, new { Value = user.username })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" value="********" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fullName" class="col-sm-2 control-label">Fullname</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.fullName, new { @class = "form-control", Value = user.fullName })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="col-sm-2 control-label">Address</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.address, new { @class = "form-control", Value = user.address })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">Email</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.email, new { @class = "form-control", Value = user.email })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-2 control-label">Phone</label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(model => model.phone, new { @class = "form-control", Value = user.phone })
+                        </div>
+                    </div>
+                    @*<div class="form-group">
+                            <label for="role" class="col-sm-2 control-label">Role</label>
+                            <div class="col-sm-4">
+                                @Html.DropDownListFor(model => model.roleID,
+                                    new SelectList(RoleList, "Value", "Text", user.roleID)
+                                    , "--Select Role--", new { @class = "form-control" })
+                            </div>
+                        </div>*@
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-info pull-right">Update User</button>
+                </div>
+                <!-- /.box-footer -->
+            }
+            <script type="text/javascript">
+                function readURL(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            let img = document.getElementById('imgSelected')
+                            img.src = e.target.result
+                        };
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                $(function () {
+                    $("#updateForm").validate({
+                        rules: {  // set rule for each field
+                            fullName: {
+                                required: true,
+                                rangelength: [6, 50]
+                            },
+                            address: {
+                                rangelength: [6, 200]
+                            },
+                            FileAva: {
+                                extension: "png|jpg|jpeg|gif"
+                            },
+                            email: {
+                                email: true
+                            },
+                            phone: {
+                                phone: true
+                            },
+                        }, //end rule
+                        messages: {  // customize message báo lỗi
+                            fullName: {
+                                required: "Please enter your fullname",
+                                rangelength: "Please enter your full name with length of 6 to 50"
+                            },
+                            address: {
+                                rangelength: "Please enter your address with length of 6 to 200"
+                            },
+                            FileAva: {
+                                extension: "Please choose file with extension is (png,jpg,jpeg or gif)"
+                            },
+                            email: {
+                                email: "Please enter a valid email address"
+                            },
+                            phone: {
+                                phone: "Please enter a valid phone number"
+                            }
+                        }, // end messages
+                    }); // end validate
+                }); // end function
+            </script>
+        </div>
+    </div>
+</div>
+
+
+
+
+
